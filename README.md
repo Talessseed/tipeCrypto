@@ -1,4 +1,3 @@
-https://talessseed.github.io/tipeCrypto/
 ## TIPE 2018
 Timothé Picavet et Marin Nguyen
 
