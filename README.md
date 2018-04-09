@@ -1,5 +1,5 @@
 # TIPE 2018
-Timothé Picavet et Marin Nguyen
+par Timothé P. et Marin N.
 
 ## Démonstration des programmes :
 - [Tests de primalité](Algos/Tests%20de%20primalite/index.html)
