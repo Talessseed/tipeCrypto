@@ -2,7 +2,8 @@ https://talessseed.github.io/tipeCrypto/
 ## TIPE 2018
 Timothé Picavet et Marin Nguyen
 
-[Link](Algos/Tests%20de%20primalite/index.html)
+Documentation des programmes :
+- [Tests de primalité](Algos/Tests%20de%20primalite/index.html)
 
 
 ### Markdown
