@@ -1,3 +1,5 @@
+from math_helper import *
+
 # St : texte clair, K: clef
 def AES(St, K): 
     TK = KeyExpansion(K) ;
