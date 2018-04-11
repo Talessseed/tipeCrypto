@@ -1,13 +1,10 @@
-from math_helper import *
-
 # St : texte clair, K: clef
-def AES(St, K):
-    #définir Ne en fct de la longeur de la clef
+def AES(St, K): 
     TK = KeyExpansion(K) ;
-    AddRoundKey(St, TK[0]) ;
-    for i in range(Ne):
-        Round(St, TK[i])
-    FinalRound(St, TK[Ne])
+    St = AddRoundKey(St, TK[0]) ;
+    for i in range(1, Ne):
+        St = Round(St, TK[i])
+    St = FinalRound(St, TK[Ne])
     return St
     
     
@@ -16,12 +13,13 @@ def Round(St, T):
     St = ShiftRows(St)
     St = MixColumns(St)
     St = AddRoundKey(St, T)
+    return St
     
 def FinalRound(St, T):
     St = SubBytes(St)
     St = ShiftRows(St)
     St = AddRoundKey(St, T)
-
+    return St
 
 
 def KeyExpansion(K):
@@ -42,4 +40,4 @@ def ShiftRows(St):
     
 def MixColumns(St):
     pass
-    
+
