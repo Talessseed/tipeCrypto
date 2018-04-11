@@ -78,11 +78,11 @@ def Solovay_Strassen(n, nbTests = 100):
 def Miller_Rabin_aux(n, a, k, m):
     a = randint(1, n-1)
     b = pow(a, m, n)
-    if b % n == 1:
+    if b == 1:
         return True
         
     for i in range(0,k):
-        if b % n == n-1:
+        if b == n-1:
             return True
         b = (b*b) % n
     return False
