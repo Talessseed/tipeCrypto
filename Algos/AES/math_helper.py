@@ -29,9 +29,7 @@ class S_box:
     def _transform(self, sboxmat, matrix):
         data = matrix.data[:]
         for i in range(len(data)):
-            msbx16 = data[i] & 0xf0
-            lsb = data[i] & 0xf
-            data[i] = sboxmat[lsb + msbx16]
+            data[i] = sboxmat[data[i] & 0xff]
         return Mat4(data)
         
     def transform(self, matrix):
