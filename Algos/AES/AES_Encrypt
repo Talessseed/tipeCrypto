@@ -5,7 +5,6 @@ for (int i = 0; i < 16; ++i)
     state[i] = message[i]
     
 int numberOfRounds = 9; // AES 128
-
 AddRoundKey(state, key); // Whitening/AddRoundKey
 
 for (int i = 0; i < numberOfROunds: ++i)
@@ -13,12 +12,16 @@ for (int i = 0; i < numberOfROunds: ++i)
     subBytes(state);
     ShiftRows(state;
     MixColumns(state);
-    AddRoundKey(state, key);
+    AddRoundKey( state, expandedKey + (16 * (i + 1)) );
 }
 
 // Final round 
 SubBytes(state);
 ShiftRows(state);
-AddRoundKey(state, key);
+AddRoundKey(state, expandedKey + 160); // et non pas AddRoundKey(state, key)
+
+// Copy encrypted state to message (si on ne conserve pas l'original):
+for (int i = 0; i < 16; ++i)
+    message[i] = state[i];
 }
 
