@@ -1,0 +1,7 @@
+void PrinHex(unsigned char x)
+{
+    if (x / 16 < 10) cout<<(char)(x / 16) + '0');
+    if (x / 16 >= 10) cout<<(char)(x / 16 - 10) + 'A');
+    
+    if (x % 16 < 10) cout<<(char)((x % 16) + '0');
+    if (x % 16 >= 10) cout<<(char)((x%16 - 10) + 'A');
