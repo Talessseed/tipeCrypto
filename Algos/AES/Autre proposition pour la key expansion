@@ -29,14 +29,25 @@ void KeyExpansion (unsigned char* inputKey, unsigned char* expandedKeys)
     while (bytesGenerated < 16)
     {
         // Read 4 bytes for the core :
-    for (int i = 0; i < 4; ++i)
-        temp[i] = expandedKeys[i + bytesGenerated - 4];
+        for (int i = 0; i < 4; ++i)
+            temp[i] = expandedKeys[i + bytesGenerated - 4];
         
-        // Perform the core once for each 16 byte key :
-        if (bytesGenerated % 16 == 0)
-            KeyExpansionCore(temp, rconIteration);
-            ++rconIteration;
+            // Perform the core once for each 16 byte key :
+            if (bytesGenerated % 16 == 0)
+            {
+                KeyExpansionCore(temp, rconIteration);
+                ++rconIteration;
+            }
+        
+        // XOR temp with [bytesGenerated-16], and store in expandedKeys;
+        for (unsigned char a = 0; a < 4; ++a)
+        {
+            expandedKeys[bytesHenerated] = 
+                expandedKeys[bytesGenerated - 16] ^temp[a];
+            ++bytesGenerated;
+        }
     }
+    
 }    
         
     
