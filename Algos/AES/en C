@@ -404,10 +404,31 @@ int main()
 		13, 14, 15, 16,
 	};
 	
+	
+	// longueur du msg ajustée
+	int originalLen = strlen((const char*)message);
+	int lenOfPaddedMessage = originalLen;
+	
+	if (lenOfPaddedMessage % 16 != 0)
+	    lenOfPaddedMessage = (lenOfPaddedMessage / 16 + 1) * 16;
+	
+	unsigned char* paddedMessage = new unsigned cahr[lenOfPaddedMessage];
+	for (int i = 0; i < lenOfPaddedMessage; ++i)
+	{
+	    if (i >= originalLen) paddedMessage[i] = 0;
+	    else paddedMessage[i] = message[i];
+	}
+	
+	
+	// la clé
 	unsigned char expandedKey[176];
         KeyExpansion(key, expandedKey);
-
-	byte* block = AES_Encrypt(message, key, KEY_SIZE, expandedKey);
-	printf("%s\n", block);
+	
+	// Encrypt padded message :
+	for (int i = 0; i < lenOfPaddedMessage; i += 16)
+            AES_Encrypt(paddedMessage+i, key, expandedKey);
+	    
+	/* byte* block = AES_Encrypt(message, key, KEY_SIZE, expandedKey);
+	printf("%s\n", block);*/
 	return 0;
 }
