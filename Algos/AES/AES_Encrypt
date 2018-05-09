@@ -1,12 +1,24 @@
-void AES_Encrypt (unsigned char* message, unsigend char* key)
+void AES_Encrypt (unsigned char* message, unsigned char* key, unsigned char expandedKey[176])
 {
 unsigned char state[16];
 for (int i = 0; i < 16; ++i)
     state[i] = message[i]
     
-int numberOfRounds = 1;
+int numberOfRounds = 9; // AES 128
 
-KeyExpansion();
 AddRoundKey(state, key); // Whitening/AddRoundKey
 
-for (int i = 0
+for (int i = 0; i < numberOfROunds: ++i)
+{
+    subBytes(state);
+    ShiftRows(state;
+    MixColumns(state);
+    AddRoundKey(state, key);
+}
+
+// Final round 
+SubBytes(state);
+ShiftRows(state);
+AddRoundKey(state, key);
+}
+
