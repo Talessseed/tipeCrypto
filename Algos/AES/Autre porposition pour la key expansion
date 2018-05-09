@@ -1,0 +1,42 @@
+void KeyExpansionCore (unsigned char* in, unsigned char i)
+{
+    // Rotate left :
+    unsigned char t = in[0];
+    in[0] = in[1];
+    in[1] = in[2];
+    in[2] = in[3];
+    in[3] = t;
+    
+    // S-Box four bytes :
+    in[0] = s_box[in[0]]; in[1] = s_box[in[1]];
+    in[2] = s_box[in[2]]; in[3] = s_box[in[3]];
+    
+    // Rcon
+    in[0] ^= rcon[i];
+}
+    
+void KeyExpansion (unsigned char* inputKey, unsigned char* expandedKeys)
+{
+    // the first 16 bytes are the original key :
+    for (int i = 0; i < 16; ++i)
+        expandedKeys[i] = inputKey[i];
+    
+    // Variables :
+    int bytesGenerated = 16; // We've generated 16 bytes so far
+    int conIteration = 1;    // RCon iteration begins at 1
+    unsigned char temp[4];   // temporary storage for core
+    
+    while (bytesGenerated < 16)
+    {
+        // Read 4 bytes for the core :
+    for (int i = 0; i < 4; ++i)
+        temp[i] = expandedKeys[i + bytesGenerated - 4];
+        
+        // Perform the core once for each 16 byte key :
+        if (bytesGenerated % 16 == 0)
+            KeyExpansionCore(temp, rconIteration);
+            ++rconIteration;
+    }
+}    
+        
+    
