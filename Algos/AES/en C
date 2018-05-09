@@ -403,8 +403,11 @@ int main()
 		9, 10, 11, 12,
 		13, 14, 15, 16,
 	};
+	
+	unsigned char expandedKey[176];
+        KeyExpansion(key, expandedKey);
 
-	byte* block = AES_Encrypt(message, key, KEY_SIZE);
+	byte* block = AES_Encrypt(message, key, KEY_SIZE, expandedKey);
 	printf("%s\n", block);
 	return 0;
 }
