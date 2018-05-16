@@ -1,3 +1,6 @@
+#include "stdafx.h"
+#include "windows.h"
+
 #include <iostream>
 using namespace std;
 
@@ -115,13 +118,14 @@ byte MixColumsMat_inv[] = {
 	0x0B, 0x0D, 0x09, 0x0E
 };
 
+/* PROBABLEMENT BUGGE */
 void mulmat4(byte* mat, byte* vec)
 {
 	byte tmp[4];
 	for (unsigned int i = 0; i < 4; i++)
 	{
-		tmp[i] = vec[0] * mat[4*i] ^ vec[1] * mat[4*i+1]
-			^ vec[2] * mat[4*i+2] ^ vec[3] * mat[4*i+3];
+		tmp[i] = vec[0] * mat[4 * i] ^ vec[1] * mat[4 * i + 1]
+			^ vec[2] * mat[4 * i + 2] ^ vec[3] * mat[4 * i + 3];
 	}
 	for (unsigned int i = 0; i < 4; i++)
 		vec[i] = tmp[i];
@@ -129,7 +133,7 @@ void mulmat4(byte* mat, byte* vec)
 
 
 
-
+/* AUCUN BUG */
 void rotate(byte* word)
 {
 	byte tmp;
@@ -141,8 +145,9 @@ void rotate(byte* word)
 	word[3] = tmp;
 }
 
+/* AUCUN BUG */
 void schedule(byte *word, unsigned int i)
-{	
+{
 	rotate(word);
 
 	for (unsigned int i = 0; i < 4; i++)
@@ -151,8 +156,8 @@ void schedule(byte *word, unsigned int i)
 	word[0] ^= rcon[i];
 }
 
-void _
-Expansion_(byte* state, byte* turn_keys, unsigned int n, unsigned int b, bool is256) 
+/* AUCUN BUG (pour 128 bit au moins) */
+void _KeyExpansion_(byte* state, byte* turn_keys, unsigned int n, unsigned int b, bool is256)
 {
 
 	for (unsigned int i = 0; i < n; i++)
@@ -161,12 +166,12 @@ Expansion_(byte* state, byte* turn_keys, unsigned int n, unsigned int b, bool is
 	}
 
 	byte t[4];
-	byte c = 24;
+	byte c = n;
 	byte i = 1;
 
 	while (c < b) {
 
-		for (unsigned int j = 0; j < 4; j++)
+		for (byte j = 0; j < 4; j++)
 			t[j] = turn_keys[j + c - 4];
 
 		if (c % n == 0) {
@@ -174,12 +179,12 @@ Expansion_(byte* state, byte* turn_keys, unsigned int n, unsigned int b, bool is
 			i++;
 		}
 
-		if (is256) {
-			for (unsigned int j = 0; j < 4; j++)
+		if (is256 && c % 32 == 16) {
+			for (byte j = 0; j < 4; j++)
 				t[j] = s_box[t[j]];
 		}
 
-		for (unsigned int j = 0; j < 4; j++) {
+		for (byte j = 0; j < 4; j++) {
 			turn_keys[c] = turn_keys[c - n] ^ t[j];
 			c++;
 		}
@@ -187,8 +192,11 @@ Expansion_(byte* state, byte* turn_keys, unsigned int n, unsigned int b, bool is
 
 }
 
+/* AUCUN BUG (pour 128 bit au moins) */
 void KeyExpansion(byte* state, byte* turn_keys, unsigned int KEY_SIZE) // pk pas un truc avec juste 2 variables : 
 {                                                                      // inputKey[16] et expandedKeys[176]
+																	   // -> parce que si on change la taille de 
+																	   // la clef en 256 bits ca marche plus
 	switch (KEY_SIZE)
 	{
 	case 128:
@@ -205,14 +213,13 @@ void KeyExpansion(byte* state, byte* turn_keys, unsigned int KEY_SIZE) // pk pas
 	}
 }
 
-void InitialRound() { }	// on a pas besoin de ça non ?
-
 void SubBytes(byte* state)
 {
-	for (unsigned int i = 0; i < 16; ++i)
+	for (unsigned int i = 0; i < 16; i++)
 		state[i] = s_box[state[i]];
 }
 
+/* AUCUN BUG */
 void ShiftRows(byte* state)
 {
 	byte tmp[16]; //on fait le shifting la-dedans
@@ -237,7 +244,7 @@ void ShiftRows(byte* state)
 	tmp[14] = state[6];
 	tmp[15] = state[11];
 
-	for (int i = 0; i < 16; ++i)
+	for (int i = 0; i < 16; i++)
 		state[i] = tmp[i];
 }
 
@@ -245,7 +252,7 @@ void ShiftRows_inv(byte* state)
 {
 	byte tmp[16]; //on fait le shifting la-dedans
 
-	for (int i = 0; i < 16; ++i)
+	for (int i = 0; i < 16; i++)
 		tmp[i] = state[i];
 
 	state[0] = tmp[0];
@@ -269,43 +276,43 @@ void ShiftRows_inv(byte* state)
 	state[15] = tmp[11];
 }
 
-/*
-mon MixColumns
-void MixColumns()
+
+void MixColumns(byte* state)
 {
 	unsigned char tmp[16];
-	
+
 	tmp[0] =  (unsigned char)(mul2[state[0]] ^ mul3[state[1]] ^ state[2] ^ state[3]);
 	tmp[1] = (unsigned char)(state[0] ^ mul2[state[1]] ^ mul3[state[2]] ^ state[3]);
 	tmp[2] = (unsigned char)(state[0] ^ state[1] ^ mul2[state[2]] ^ mul3[state[3]]);
 	tmp[3] = (unsigned char)(mul3[state[0]] ^ state[1] ^ state[2] ^ mul2[state[3]]);
-	
+
 	tmp[4] = (unsigned char)(mul2[state[4]] ^ mul3[state[5]] ^ state[6] ^ state[7]);
 	tmp[5] = (unsigned char)(state[4] ^ mul2[state[5]] ^ mul3[state[6]] ^ state[7]);
 	tmp[6] = (unsigned char)(state[4] ^ state[5] ^ mul2[state[6]] ^ mul3[state[7]]);
 	tmp[7] = (unsigned char)(mul3[state[4]] ^ state[5] ^ state[6] ^ mul2[state[7]]);
-	
+
 	tmp[8] = (unsigned char)(mul2[state[8]] ^ mul3[state[9]] ^ state[10] ^ state[11]);
 	tmp[9] = (unsigned char)(state[8] ^ mul2[state[9]] ^ mul3[state[10]] ^ state[11]);
 	tmp[10] = (unsigned char)(state[8] ^ state[9] ^ mul2[state[10]] ^ mul3[state[11]]);
 	tmp[11] = (unsigned char)(mul3[state[8]] ^ state[9] ^ state[10] ^ mul2[state[11]]);
-	
+
 	tmp[12] = (unsigned char)(mul2[state[12]] ^ mul3[state[13]] ^ state[14] ^ state[15]);
 	tmp[13] = (unsigned char)(state[12] ^ mul2[state[13]] ^ mul3[state[14]] ^ state[15]);
 	tmp[14] = (unsigned char)(state[12] ^ state[13] ^ mul2[state[14]] ^ mul3[state[15]]);
 	tmp[15] = (unsigned char)(mul3[state[12]] ^ state[13] ^ state[14] ^ mul2[state[15]]);
-	
-	for (int i = 0; i < 16; ++i)
-		state[i] = tmp[i]
+
+	for (int i = 0; i < 16; i++)
+		state[i] = tmp[i];
 }
-*/
 
 
+/*
+BUGGE, PROBABLEMENT LA MULTIPLICATION PAR LA MATRICE
 void _MixColumns_(byte* mat, byte* state)
 {
 	for (unsigned int i = 0; i < 4; i++)
 	{
-		byte column[4] = { state[i], state[4+i], state[8+i], state[12+i] };
+		byte column[4] = { state[i], state[4 + i], state[8 + i], state[12 + i] };
 		mulmat4(mat, column);
 		state[i] = column[0];
 		state[4 + i] = column[1];
@@ -322,11 +329,11 @@ void MixColumns(byte* state)
 void MixColumns_inv(byte* state)
 {
 	_MixColumns_(MixColumsMat_inv, state);
-}
+}*/
 
 void AddRoundKey(byte* state, byte* roundKey)
 {
-	for (int i = 0; i < 16; ++i)
+	for (int i = 0; i < 16; i++)
 		state[i] ^= roundKey[i]; // le XOR
 }
 
@@ -334,57 +341,64 @@ void AddRoundKey(byte* state, byte* roundKey)
 byte* AES_Encrypt(byte* message, byte* key, unsigned int KEY_SIZE)
 {
 	byte state[16]; // on encrypte en blocs
-	for (int i = 0; i < 16; ++i)
+	for (int i = 0; i < 16; i++)
 		state[i] = message[i];
 
 	unsigned int numberOfRounds = 0;
-	
+
 	switch (KEY_SIZE)
 	{
-		case 128:
-			numberOfRounds = 10;
-			break;
-		case 192:
-			numberOfRounds = 12;
-			break;
-		case 256:
-			numberOfRounds = 14;
-			break;
-		default:
-			printf("! Unknown KEY_SIZE !\n");
+	case 128:
+		numberOfRounds = 10;
+		break;
+	case 192:
+		numberOfRounds = 12;
+		break;
+	case 256:
+		numberOfRounds = 14;
+		break;
+	default:
+		printf("! Unknown KEY_SIZE !\n");
 	}
 
 
-	byte* turn_keys = new byte[(numberOfRounds + 1) * 16] ;
+	byte* turn_keys = new byte[(numberOfRounds + 1) * 16];
 
 	byte tkey[16];
 
 	KeyExpansion(key, turn_keys, KEY_SIZE);
 
-	for (unsigned int j = 0; j < 16; ++j)
+
+	for (unsigned int j = 0; j < 16; j++)
 		tkey[j] = turn_keys[j];
 
 	AddRoundKey(state, tkey); // Whitening/AddRoundKey
 
 
-	for (unsigned int i = 1; i < numberOfRounds; ++i)
+	for (unsigned int i = 1; i < numberOfRounds; i++)
 	{
-		for (unsigned int j = 0; j < 16; ++j)
+		for (unsigned int j = 0; j < 16; j++)
 			tkey[j] = turn_keys[16 * i + j];
+		
+		for (unsigned int k = 0; k < 16; k++)
+		{
+			printf("%X ", state[k]);
+		}
+		printf("\n");
 
 		SubBytes(state);
 		ShiftRows(state);
 		MixColumns(state);
-		AddRoundKey(state, key);
+		AddRoundKey(state, tkey);
 	}
 
-	for (unsigned int j = 0; j < 16; ++j)
+	for (unsigned int j = 0; j < 16; j++)
 		tkey[j] = turn_keys[16 * numberOfRounds + j];
 
 	// Final round
 	SubBytes(state);
 	ShiftRows(state);
-	AddRoundKey(state, key);
+	AddRoundKey(state, tkey);
 
 	delete turn_keys;
 
@@ -395,40 +409,48 @@ int main()
 {
 	unsigned int KEY_SIZE = 128;
 
-	byte message[] = "message 16 char";
-	byte key[16] =  // 16 bytes <- Il faut une clef à 128/192/256 bytes
+	byte message[17] = "message 16 char ";		// 17 avec le null terminator
+	byte key[16] =  // Il faut une clef à 128/192/256 bits
 	{
-		1, 2, 3, 4,
-		5, 6, 7, 8,
-		9, 10, 11, 12,
-		13, 14, 15, 16,
+		98, 111, 110, 106, 111, 117, 114, 32, 108, 101, 32, 109, 111, 110, 100, 101
 	};
-	
-	
+
+
+
 	// longueur du msg ajustée
-	int originalLen = strlen((const char*)message);
-	int lenOfPaddedMessage = originalLen;
-	
+	unsigned int originalLen = strlen((const char*)message);
+	unsigned int lenOfPaddedMessage = originalLen;
+
 	if (lenOfPaddedMessage % 16 != 0)
-	    lenOfPaddedMessage = (lenOfPaddedMessage / 16 + 1) * 16;
+		lenOfPaddedMessage = (lenOfPaddedMessage / 16 + 1) * 16;
+
+	byte* paddedMessage = new byte[lenOfPaddedMessage];
+	byte* cryptedMessage = new byte[lenOfPaddedMessage];
+
 	
-	unsigned char* paddedMessage = new unsigned cahr[lenOfPaddedMessage];
-	for (int i = 0; i < lenOfPaddedMessage; ++i)
+	for (unsigned int i = 0; i < originalLen; i++)
+		paddedMessage[i] = message[i];
+
+	for (unsigned int i = originalLen; i < lenOfPaddedMessage; i++)
+		paddedMessage[i] = 0;
+
+
+
+	byte* tmp = new byte[16];
+
+	// Encrypt padded message :
+	for (unsigned int i = 0; i < lenOfPaddedMessage; i += 16)
 	{
-	    if (i >= originalLen) paddedMessage[i] = 0;
-	    else paddedMessage[i] = message[i];
+		tmp = AES_Encrypt(paddedMessage + i, key, KEY_SIZE);
+		
+		for (unsigned int j = 0; j < 16; j++)
+		{
+			cryptedMessage[i + j] = tmp[j];
+			printf("%X ", tmp[j]);
+		}
 	}
 	
-	
-	// la clé
-	unsigned char expandedKey[176];
-        KeyExpansion(key, expandedKey);
-	
-	// Encrypt padded message :
-	for (int i = 0; i < lenOfPaddedMessage; i += 16)
-            AES_Encrypt(paddedMessage+i, key, expandedKey);
-	    
-	/* byte* block = AES_Encrypt(message, key, KEY_SIZE, expandedKey);
-	printf("%s\n", block);*/
-	return 0;
+	Sleep(10000);
+
+	delete paddedMessage;
 }
