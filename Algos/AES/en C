@@ -1,5 +1,5 @@
 //TODO: mettre KeyExpansion dans le main
-#include "stdafx.h"
+
 #include "windows.h"
 
 #include <iostream>
@@ -452,6 +452,7 @@ int main()
 	}
 	
 	Sleep(10000);
-
+	
+	delete cryptedMessage;
 	delete paddedMessage;
 }
