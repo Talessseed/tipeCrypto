@@ -26,7 +26,7 @@ void KeyExpansion (unsigned char* inputKey, unsigned char* expandedKeys)
     int conIteration = 1;    // RCon iteration begins at 1
     unsigned char temp[4];   // temporary storage for core
     
-    while (bytesGenerated < 16)
+    while (bytesGenerated < 176)
     {
         // Read 4 bytes for the core :
         for (int i = 0; i < 4; ++i)
