@@ -1,3 +1,11 @@
+#include "stdafx.h"
+#include <iostream>
+#include <string>
+#include <fstream>
+
+
+//TODO: mettre KeyExpansion dans le main
+
 #include "windows.h"
 
 #include <iostream>
@@ -374,12 +382,6 @@ void AES_Encrypt(byte* message, byte* turn_keys, byte* state, unsigned int KEY_S
 		for (unsigned int j = 0; j < 16; j++)
 			tkey[j] = turn_keys[16 * i + j];
 
-		for (unsigned int k = 0; k < 16; k++)
-		{
-			printf("%X ", state[k]);
-		} 
-		printf("\n");
-
 		SubBytes(state);
 		ShiftRows(state);
 		MixColumns(state);
@@ -393,25 +395,48 @@ void AES_Encrypt(byte* message, byte* turn_keys, byte* state, unsigned int KEY_S
 	SubBytes(state);
 	ShiftRows(state);
 	AddRoundKey(state, tkey);
-
-	for (unsigned int k = 0; k < 16; k++)
-	{
-		printf("%X ", state[k]);
-	}
-	printf("\n");
 }
 
 int main()
 {
-	unsigned int KEY_SIZE = 128;
-
-	byte message[17] = "message 16 char ";		// 17 avec le null terminator
-	byte key[16] =  // Il faut une clef à 128/192/256 bits
-	{
-		98, 111, 110, 106, 111, 117, 114, 32, 108, 101, 32, 109, 111, 110, 100, 101
-	};
+	std::string tmpStr;
 
 	unsigned int numberOfRounds = 0;
+
+	while (numberOfRounds == 0)
+	{
+		printf("Enter key : ");
+		std::getline(std::cin, tmpStr);
+
+		switch (tmpStr.length()*8)
+		{
+		case 128:
+			numberOfRounds = 10;
+			break;
+		case 192:
+			numberOfRounds = 12;
+			break;
+		case 256:
+			numberOfRounds = 14;
+			break;
+		default:
+			printf("! Unknown key size (must be 128/192/256 bits) !\n");
+		}
+	}
+	
+	unsigned int KEY_SIZE = tmpStr.length() * 8;
+	printf("Key size : %u\n", KEY_SIZE);
+
+	byte* key = new byte[tmpStr.length() + 1];
+	strcpy((char*)key, tmpStr.c_str());
+
+	printf("Enter message :\n\n");
+	std::getline(std::cin, tmpStr);
+	
+	byte* message = new byte[tmpStr.length()+1];
+	strcpy((char*)message, tmpStr.c_str());
+
+	// and then later on, when you are done with the `char*`:
 
 	switch (KEY_SIZE)
 	{
@@ -458,16 +483,46 @@ int main()
 	for (unsigned int i = 0; i < lenOfPaddedMessage; i += 16)
 	{
 		AES_Encrypt(paddedMessage + i, turn_keys, tmp, KEY_SIZE);
-
 		for (unsigned int j = 0; j < 16; j++)
 		{
 			cryptedMessage[i + j] = tmp[j];
-			printf("%X ", tmp[j]);
 		}
+		printf("-");
+	}
+	printf("\n");
+
+	for (unsigned int j = 0; j < lenOfPaddedMessage; j++)
+	{
+		printf("%X ", cryptedMessage[j]);
+		if (j % 16 == 15)
+			printf("\n");
 	}
 
-	Sleep(10000);
+	char outputToFile;
 
+	printf("Output to file (y/n) : ");
+	cin >> outputToFile;
+
+	if (outputToFile == 'y')
+	{
+		printf("File name : ");
+		std::cin >> tmpStr;
+
+		ofstream myfile;
+		myfile.open(tmpStr + ".txt");
+		std::cout << "Writing to file : " << tmpStr << ".txt";
+
+		for (unsigned int j = 0; j < lenOfPaddedMessage; j++)
+		{
+			myfile << std::hex << cryptedMessage[j];
+			if (j % 16 == 15)
+				myfile << "\n";
+		}
+		myfile.close();
+	}
+
+	delete message;
+	delete key;
 	delete cryptedMessage;
 	delete paddedMessage;
 	delete turn_keys;
