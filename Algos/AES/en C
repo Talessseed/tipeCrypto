@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 //TODO: mettre KeyExpansion dans le main
 
 #include "windows.h"
@@ -282,7 +284,7 @@ void MixColumns(byte* state)
 {
 	unsigned char tmp[16];
 
-	tmp[0] =  (unsigned char)(mul2[state[0]] ^ mul3[state[1]] ^ state[2] ^ state[3]);
+	tmp[0] = (unsigned char)(mul2[state[0]] ^ mul3[state[1]] ^ state[2] ^ state[3]);
 	tmp[1] = (unsigned char)(state[0] ^ mul2[state[1]] ^ mul3[state[2]] ^ state[3]);
 	tmp[2] = (unsigned char)(state[0] ^ state[1] ^ mul2[state[2]] ^ mul3[state[3]]);
 	tmp[3] = (unsigned char)(mul3[state[0]] ^ state[1] ^ state[2] ^ mul2[state[3]]);
@@ -311,25 +313,25 @@ void MixColumns(byte* state)
 BUGGE, PROBABLEMENT LA MULTIPLICATION PAR LA MATRICE
 void _MixColumns_(byte* mat, byte* state)
 {
-	for (unsigned int i = 0; i < 4; i++)
-	{
-		byte column[4] = { state[i], state[4 + i], state[8 + i], state[12 + i] };
-		mulmat4(mat, column);
-		state[i] = column[0];
-		state[4 + i] = column[1];
-		state[8 + i] = column[2];
-		state[12 + i] = column[3];
-	}
+for (unsigned int i = 0; i < 4; i++)
+{
+byte column[4] = { state[i], state[4 + i], state[8 + i], state[12 + i] };
+mulmat4(mat, column);
+state[i] = column[0];
+state[4 + i] = column[1];
+state[8 + i] = column[2];
+state[12 + i] = column[3];
+}
 }
 
 void MixColumns(byte* state)
 {
-	_MixColumns_(MixColumsMat, state);
+_MixColumns_(MixColumsMat, state);
 }
 
 void MixColumns_inv(byte* state)
 {
-	_MixColumns_(MixColumsMat_inv, state);
+_MixColumns_(MixColumsMat_inv, state);
 }*/
 
 void AddRoundKey(byte* state, byte* roundKey)
@@ -339,9 +341,8 @@ void AddRoundKey(byte* state, byte* roundKey)
 }
 
 
-byte* AES_Encrypt(byte* message, byte* key, unsigned int KEY_SIZE)
+void AES_Encrypt(byte* message, byte* key, byte* state, unsigned int KEY_SIZE)
 {
-	byte state[16]; // on encrypte en blocs
 	for (int i = 0; i < 16; i++)
 		state[i] = message[i];
 
@@ -380,11 +381,11 @@ byte* AES_Encrypt(byte* message, byte* key, unsigned int KEY_SIZE)
 	{
 		for (unsigned int j = 0; j < 16; j++)
 			tkey[j] = turn_keys[16 * i + j];
-		
+
 		for (unsigned int k = 0; k < 16; k++)
 		{
 			printf("%X ", state[k]);
-		}
+		} 
 		printf("\n");
 
 		SubBytes(state);
@@ -401,9 +402,13 @@ byte* AES_Encrypt(byte* message, byte* key, unsigned int KEY_SIZE)
 	ShiftRows(state);
 	AddRoundKey(state, tkey);
 
-	delete turn_keys;
+	for (unsigned int k = 0; k < 16; k++)
+	{
+		printf("%X ", state[k]);
+	}
+	printf("\n");
 
-	return state;
+	delete turn_keys;
 }
 
 int main()
@@ -428,7 +433,7 @@ int main()
 	byte* paddedMessage = new byte[lenOfPaddedMessage];
 	byte* cryptedMessage = new byte[lenOfPaddedMessage];
 
-	
+
 	for (unsigned int i = 0; i < originalLen; i++)
 		paddedMessage[i] = message[i];
 
@@ -442,17 +447,17 @@ int main()
 	// Encrypt padded message :
 	for (unsigned int i = 0; i < lenOfPaddedMessage; i += 16)
 	{
-		tmp = AES_Encrypt(paddedMessage + i, key, KEY_SIZE);
-		
+		AES_Encrypt(paddedMessage + i, key, tmp, KEY_SIZE);
+
 		for (unsigned int j = 0; j < 16; j++)
 		{
 			cryptedMessage[i + j] = tmp[j];
 			printf("%X ", tmp[j]);
 		}
 	}
-	
+
 	Sleep(10000);
-	
+
 	delete cryptedMessage;
 	delete paddedMessage;
 }
