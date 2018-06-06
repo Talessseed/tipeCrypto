@@ -6,8 +6,6 @@
 #include <sstream>
 #include <vector>
 
-//TODO: mettre KeyExpansion dans le main
-
 #include "windows.h"
 using namespace std;
 
