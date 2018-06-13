@@ -1,10 +1,12 @@
-#include "stdafx.h"
 #include "stdio.h"
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <vector>
+using namespace std;
+
+//TODO: mettre KeyExpansion dans le main
 
 #include "windows.h"
 using namespace std;
@@ -89,7 +91,7 @@ byte mul3[] = {
 	0x3b,0x38,0x3d,0x3e,0x37,0x34,0x31,0x32,0x23,0x20,0x25,0x26,0x2f,0x2c,0x29,0x2a,
 	0x0b,0x08,0x0d,0x0e,0x07,0x04,0x01,0x02,0x13,0x10,0x15,0x16,0x1f,0x1c,0x19,0x1a
 };
- 
+
 byte mul9[] = {
 	0x00,0x09,0x12,0x1b,0x24,0x2d,0x36,0x3f,0x48,0x41,0x5a,0x53,0x6c,0x65,0x7e,0x77,
 	0x90,0x99,0x82,0x8b,0xb4,0xbd,0xa6,0xaf,0xd8,0xd1,0xca,0xc3,0xfc,0xf5,0xee,0xe7,
@@ -266,12 +268,14 @@ void KeyExpansion(byte* state, byte* turn_keys, unsigned int KEY_SIZE) // pk pas
 	}
 }
 
+/* AUCUN BUG */
 void SubBytes(byte* state)
 {
 	for (unsigned int i = 0; i < 16; i++)
 		state[i] = s_box[state[i]];
 }
 
+/* AUCUN BUG */
 void SubBytes_inv(byte* state)
 {
 	for (unsigned int i = 0; i < 16; i++)
@@ -315,24 +319,24 @@ void ShiftRows_inv(byte* state)
 		tmp[i] = state[i];
 
 	state[0] = tmp[0];
-	state[1] = tmp[5];
-	state[2] = tmp[10];
-	state[3] = tmp[15];
+	state[5] = tmp[1];
+	state[10] = tmp[2];
+	state[15] = tmp[3];
 
 	state[4] = tmp[4];
-	state[5] = tmp[9];
-	state[6] = tmp[14];
-	state[7] = tmp[3];
+	state[9] = tmp[5];
+	state[14] = tmp[6];
+	state[3] = tmp[7];
 
 	state[8] = tmp[8];
-	state[9] = tmp[13];
-	state[10] = tmp[2];
-	state[11] = tmp[7];
+	state[13] = tmp[9];
+	state[2] = tmp[10];
+	state[7] = tmp[11];
 
 	state[12] = tmp[12];
-	state[13] = tmp[1];
-	state[14] = tmp[6];
-	state[15] = tmp[11];
+	state[1] = tmp[13];
+	state[6] = tmp[14];
+	state[11] = tmp[15];
 }
 
 
@@ -448,15 +452,15 @@ void AES_Decrypt(byte* message, byte* turn_keys, byte* state, unsigned int KEY_S
 
 	byte tkey[16];
 
-	for (unsigned int j = KEY_SIZE - 16; j < KEY_SIZE; j++)
-		tkey[j] = turn_keys[j];
+	for (unsigned int j = 0; j < 16; j++)
+		tkey[j] = turn_keys[16 * numberOfRounds + j];
 
 	AddRoundKey(state, tkey); // Whitening/AddRoundKey
 	ShiftRows_inv(state);
 	SubBytes_inv(state);
 
 
-	for (int i = numberOfRounds - 1; i >= 0; i--)
+	for (unsigned int i = numberOfRounds - 1; i >= 1; i--)
 	{
 		for (unsigned int j = 0; j < 16; j++)
 			tkey[j] = turn_keys[16 * i + j];
@@ -471,7 +475,6 @@ void AES_Decrypt(byte* message, byte* turn_keys, byte* state, unsigned int KEY_S
 		tkey[j] = turn_keys[j];
 
 	AddRoundKey(state, tkey); // Whitening/AddRoundKey
-
 }
 
 void AES_Encrypt(byte* message, byte* turn_keys, byte* state, unsigned int KEY_SIZE)
@@ -535,16 +538,16 @@ int chex_to_int(char input)
 	if (input >= 'a' && input <= 'f')
 		return input - 'a' + 10;
 	throw std::invalid_argument("Invalid input string");
-}
+	}
 
 int main()
 {
 	std::string tmpStr;
 
-	unsigned int numberOfRounds = 0;
-
 	/* KEY INSERTION */
 
+	unsigned int numberOfRounds = 0;
+	
 	while (numberOfRounds == 0)
 	{
 		printf("Enter key : ");
@@ -614,6 +617,7 @@ int main()
 		}
 	}
 	
+
 	byte* message = new byte[tmpStr.length() + 1];
 	strcpy((char*)message, tmpStr.c_str());
 
@@ -642,10 +646,11 @@ int main()
 	for (unsigned int i = originalLen; i < lenOfPaddedMessage; i++)
 		paddedMessage[i] = 0;
 
-	/* ENCRYPTION */
 
 	byte* tmp = new byte[16];
 
+	/* ENCRYPTION */
+	
 	if (crypt)
 	{
 		// Encrypt padded message :
@@ -695,7 +700,7 @@ int main()
 
 	/* WRITE TO FILE */
 
-	printf("Output to file (y/n) : ");
+	printf("\nOutput to file (y/n) : ");
 	cin >> outputToFile;
 
 	if (outputToFile == 'y')
