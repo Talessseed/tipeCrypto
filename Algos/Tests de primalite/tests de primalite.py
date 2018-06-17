@@ -75,7 +75,7 @@ def Solovay_Strassen(n, nbTests = 100):
     
     
     
-def Miller_Rabin_aux(n, a, k, m):
+def Miller_Rabin_aux(n, k, m):
     a = randint(1, n-1)
     b = pow(a, m, n)
     if b == 1:
@@ -97,8 +97,7 @@ def Miller_Rabin(n, nbTests = 100):
     # n-1 = 2^k*m
     
     for i in range(nbTests):
-        a = randint(1, n-1)
-        if not Miller_Rabin_aux(n, a, k, m):
+        if not Miller_Rabin_aux(n, k, m):
             return False
     return True
 
