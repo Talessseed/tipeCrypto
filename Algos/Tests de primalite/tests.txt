@@ -1,6 +1,6 @@
-In ms. 1: naive, 2:solovay strassen; 3: miller rabin
+En temps cumulé pour 1000000 tests, en ms. 1: naive, 2:solovay strassen; 3: miller rabin
 Début 3
-Step 1000000
+10000 points - Jusqu'à 1e10 - Step 1000000
 9
 428
 308
