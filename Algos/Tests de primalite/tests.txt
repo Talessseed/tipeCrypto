@@ -1,4 +1,5 @@
 En temps cumulé pour 1000000 tests, en ms. 1: naive, 2:solovay strassen; 3: miller rabin
+Equivaut au temps d'un test en ns
 Début 3
 10000 points - Jusqu'à 1e10 - Step 1000000
 9
