@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "diffusion.h"
 
-/* le sous programme qui étant donné un bit à changer i,
-message de départ et celui auquel le compare, fait subir
-AES_Encrypt puis renvoie le nombre de bits qui ont changé
-par rapport à l'état "origin_state" */
+/* le sous programme qui Ã©tant donnÃ© un bit Ã  changer i,
+message de dÃ©part et celui auquel le compare, fait subir
+AES_Encrypt puis renvoie le nombre de bits qui ont changÃ©
+par rapport Ã  l'Ã©tat "origin_state" */
 
 unsigned int aux(byte* origin_state, byte* message, byte* turn_keys, byte* state, unsigned int KEY_SIZE, unsigned int i, unsigned int j)
 {
@@ -58,7 +58,7 @@ double test_diffusion_1(byte* message, byte* turn_keys, unsigned int KEY_SIZE)
 
 	myfile.close();
 
-	// la fréquence d'une fois est tmp / (len_msg * 8)
+	// la frÃ©quence d'une fois est tmp / (len_msg * 8)
 	// celle du total est donc sum_tmp / ("nombre de rounds" * len_msg)
 	return (double)sum_tmp / 16384.;
 }
